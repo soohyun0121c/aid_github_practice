@@ -1,2 +1,1 @@
-main_hello_practice
-push_hello_practice
+main_hello
