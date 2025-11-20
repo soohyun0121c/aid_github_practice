@@ -1,9 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import '../providers/cane_provider.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final FlutterTts _flutterTts = FlutterTts();
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+  }
+
+  Future<void> _initTts() async {
+    try {
+      await _flutterTts.setLanguage('ko-KR');
+    } catch (e) {
+      debugPrint('TTS initialization error: $e');
+    }
+  }
+
+  Future<void> _testVoice(CaneProvider provider) async {
+    try {
+      await _flutterTts.setSpeechRate(provider.voiceSpeed);
+      await _flutterTts.setVolume(provider.voiceVolume);
+      await _flutterTts.speak('스마트 지팡이 어플리케이션입니다');
+    } catch (e) {
+      debugPrint('TTS speak error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,11 +197,7 @@ class SettingsScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('예시 음성: 전방 3미터 장애물 감지')),
-                    );
-                  },
+                  onPressed: () => _testVoice(provider),
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('테스트 재생'),
                 ),

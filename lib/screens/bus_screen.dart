@@ -26,12 +26,13 @@ class _BusScreenState extends State<BusScreen> {
 
   Future<void> _initTts() async {
     await _flutterTts.setLanguage('ko-KR');
-    await _flutterTts.setSpeechRate(0.5);
-    await _flutterTts.setVolume(1.0);
     await _flutterTts.setPitch(1.0);
   }
 
   Future<void> _speak(String text) async {
+    final provider = Provider.of<CaneProvider>(context, listen: false);
+    await _flutterTts.setSpeechRate(provider.voiceSpeed);
+    await _flutterTts.setVolume(provider.voiceVolume);
     await _flutterTts.speak(text);
   }
 
