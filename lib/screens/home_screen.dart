@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/cane_provider.dart';
+import 'vibration_pattern_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final void Function(int)? onNavigateToTab;
@@ -99,16 +100,6 @@ class HomeScreen extends StatelessWidget {
                   },
                   tooltip: '새로고침',
                 ),
-                IconButton(
-                  icon: const Icon(Icons.vibration),
-                  onPressed: () {
-                    provider.testVibration();
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('테스트 진동 전송')));
-                  },
-                  tooltip: '테스트 진동',
-                ),
               ],
             ),
           ],
@@ -118,32 +109,57 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildQuickActions(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildActionButton(
-            context,
-            icon: Icons.location_on,
-            label: '지팡이 위치 보기',
-            color: Colors.blue,
-            onTap: () {
-              if (onNavigateToTab != null) {
-                onNavigateToTab!(1); // 위치 탭
-              }
-            },
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionButton(
+                context,
+                icon: Icons.location_on,
+                label: '지팡이 위치 보기',
+                color: Colors.blue,
+                onTap: () {
+                  if (onNavigateToTab != null) {
+                    onNavigateToTab!(1); // 위치 탭
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionButton(
+                context,
+                icon: Icons.directions_bus,
+                label: '버스 정보',
+                color: Colors.green,
+                onTap: () {
+                  if (onNavigateToTab != null) {
+                    onNavigateToTab!(2); // 버스 탭
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
           child: _buildActionButton(
             context,
-            icon: Icons.directions_bus,
-            label: '버스 정보',
-            color: Colors.green,
+            icon: Icons.vibration,
+            label: '진동 패턴 학습',
+            color: Colors.purple,
             onTap: () {
-              if (onNavigateToTab != null) {
-                onNavigateToTab!(2); // 버스 탭
-              }
+              final callback = onNavigateToTab ?? (_) {};
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => VibrationPatternScreen(
+                    onNavigateToTab: callback,
+                    activeTabIndex: 0,
+                  ),
+                ),
+              );
             },
           ),
         ),

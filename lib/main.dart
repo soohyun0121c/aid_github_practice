@@ -67,7 +67,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(onNavigateToTab: _setTab),
     const LocationScreen(),
     const BusScreen(),
-    const SettingsScreen(),
+    SettingsScreen(onNavigateToTab: _setTab),
   ];
 
   @override

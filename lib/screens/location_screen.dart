@@ -59,14 +59,9 @@ class _LocationScreenState extends State<LocationScreen> {
       ),
       body: Stack(
         children: [
-          // 정적 배경 - 회색 배경으로 대체
+          // 배경 지도 이미지 (assets/map.png)
           Positioned.fill(
-            child: Container(
-              color: Colors.grey[200],
-              child: const Center(
-                child: Icon(Icons.map, size: 100, color: Colors.grey),
-              ),
-            ),
+            child: Image.asset('assets/map.png', fit: BoxFit.cover),
           ),
           // 정보 카드들
           Positioned(

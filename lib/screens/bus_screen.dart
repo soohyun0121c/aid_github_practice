@@ -193,11 +193,11 @@ class _BusScreenState extends State<BusScreen> {
   }
 
   Future<void> _announceStoppedBuses() async {
-    await _speak('정차 중인 버스는 5511, 동작 공일 입니다');
+    await _speak('정차 중인 버스는 동작 이일, 동작 공일 입니다');
   }
 
   Future<void> _announceArrivingBuses() async {
-    await _speak('동작 일공이 4분 뒤 도착 예정입니다');
+    await _speak('오오일일이 4분 뒤 도착 예정입니다');
   }
 
   // 기타 버튼은 음성 검색으로 대체됨

@@ -4,7 +4,8 @@ import 'package:flutter_tts/flutter_tts.dart';
 import '../providers/cane_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final void Function(int) onNavigateToTab;
+  const SettingsScreen({super.key, required this.onNavigateToTab});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -53,6 +54,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // 음성 안내 설정
               _buildSectionTitle('음성 안내'),
               _buildVoiceSettings(context, provider),
+              const SizedBox(height: 24),
+              // 진동 패턴 학습은 홈 화면으로 이동됨
             ],
           ),
         );

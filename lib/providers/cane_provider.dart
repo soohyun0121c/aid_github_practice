@@ -54,12 +54,6 @@ class CaneProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // 테스트용 진동
-  void testVibration() {
-    // TODO: 실제 지팡이에 진동 신호 전송
-    debugPrint('Testing vibration...');
-  }
-
   // 배터리 업데이트
   void updateBattery(int level) {
     _batteryLevel = level;
