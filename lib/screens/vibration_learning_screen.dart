@@ -29,6 +29,7 @@ class _VibrationLearningScreenState extends State<VibrationLearningScreen> {
   }
 
   Future<void> _speak(String text) async {
+    if (!mounted) return;
     try {
       final provider = Provider.of<CaneProvider>(context, listen: false);
       await _tts.stop();
