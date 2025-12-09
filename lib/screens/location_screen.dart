@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:provider/provider.dart';
+import '../providers/cane_provider.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -30,8 +32,9 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   Future<void> _playSound() async {
-    await _flutterTts.setSpeechRate(0.5);
-    await _flutterTts.setVolume(1.0);
+    final provider = Provider.of<CaneProvider>(context, listen: false);
+    await _flutterTts.setSpeechRate(provider.voiceSpeed);
+    await _flutterTts.setVolume(provider.voiceVolume);
     await _flutterTts.speak('삐삐삐, 지팡이 위치를 알려드립니다');
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/cane_provider.dart';
-import 'vibration_pattern_screen.dart';
+import 'vibration_learning_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final void Function(int)? onNavigateToTab;
@@ -151,13 +151,9 @@ class HomeScreen extends StatelessWidget {
             label: '진동 패턴 학습',
             color: Colors.purple,
             onTap: () {
-              final callback = onNavigateToTab ?? (_) {};
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => VibrationPatternScreen(
-                    onNavigateToTab: callback,
-                    activeTabIndex: 0,
-                  ),
+                  builder: (_) => const VibrationLearningScreen(),
                 ),
               );
             },

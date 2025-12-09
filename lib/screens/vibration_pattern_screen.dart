@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:provider/provider.dart';
+import '../providers/cane_provider.dart';
 
 class VibrationPatternScreen extends StatefulWidget {
   final void Function(int) onNavigateToTab;
@@ -17,17 +19,92 @@ class VibrationPatternScreen extends StatefulWidget {
 class _VibrationPatternScreenState extends State<VibrationPatternScreen> {
   final FlutterTts _tts = FlutterTts();
 
+  late List<_VibrationItem> _cachedItems;
+  bool _itemsReady = false;
+
   @override
   void initState() {
     super.initState();
     _initTts();
+    _initializeItems();
+  }
+
+  List<_VibrationItem> get _items {
+    if (!_itemsReady) {
+      _initializeItems();
+    }
+    return _cachedItems;
+  }
+
+  void _initializeItems() {
+    _cachedItems = [
+      _VibrationItem(
+        title: '계단 감지',
+        patternVisual: '- - - -',
+        description: '네 번의 짧은 진동으로 계단을 알림',
+        pattern: _pattern([
+          shortOn,
+          gapShort,
+          shortOn,
+          gapShort,
+          shortOn,
+          gapShort,
+          shortOn,
+        ]),
+      ),
+      _VibrationItem(
+        title: '차도',
+        patternVisual: '~~~~~',
+        description: '연속 진동으로 차도 접근 경고',
+        pattern: _pattern([
+          continuousOn,
+          gapShort,
+          continuousOn,
+          gapShort,
+          continuousOn,
+        ]),
+      ),
+      _VibrationItem(
+        title: '장애물 (전봇대/변압기)',
+        patternVisual: '--- - --- -',
+        description: '긴-짧음 반복으로 고정 장애물 경고',
+        pattern: _pattern([
+          longOn,
+          gapShort,
+          shortOn,
+          gapShort,
+          longOn,
+          gapShort,
+          shortOn,
+        ]),
+      ),
+      _VibrationItem(
+        title: '장애물 (사람)',
+        patternVisual: '-- - -- -',
+        description: '중간-짧음 반복으로 이동 장애물(사람) 경고',
+        pattern: _pattern([
+          mediumOn,
+          gapShort,
+          shortOn,
+          gapShort,
+          mediumOn,
+          gapShort,
+          shortOn,
+        ]),
+      ),
+      _VibrationItem.dynamic(
+        title: '자전거 (거리별)',
+        patternVisual: '-   -   -   - / -  -  -  -  - / - - - - - -',
+        description: '거리 감소에 따라 간격이 좁아지는 경고 패턴',
+        dynamicBuilder: _bicyclePattern,
+      ),
+    ];
+    _itemsReady = true;
   }
 
   Future<void> _initTts() async {
     try {
       await _tts.setLanguage('ko-KR');
-      await _tts.setSpeechRate(1.0);
-      await _tts.setVolume(1.0);
     } catch (e) {
       debugPrint('TTS init error: $e');
     }
@@ -52,10 +129,11 @@ class _VibrationPatternScreenState extends State<VibrationPatternScreen> {
   // Helper to build vibration pattern (on/off alternating list)
   List<int> _pattern(List<int> pulses, {int lastGap = 0}) {
     // pulses already include on + off sequence except final gap optionally
+    final result = List<int>.from(pulses);
     if (lastGap > 0) {
-      pulses.add(lastGap);
+      result.add(lastGap);
     }
-    return pulses;
+    return result;
   }
 
   Future<void> _play(List<int> pattern) async {
@@ -64,7 +142,10 @@ class _VibrationPatternScreenState extends State<VibrationPatternScreen> {
 
   Future<void> _speak(String text) async {
     try {
+      final provider = Provider.of<CaneProvider>(context, listen: false);
       await _tts.stop();
+      await _tts.setSpeechRate(provider.voiceSpeed);
+      await _tts.setVolume(provider.voiceVolume);
       await _tts.speak(text);
     } catch (e) {
       debugPrint('TTS speak error: $e');
@@ -114,69 +195,6 @@ class _VibrationPatternScreenState extends State<VibrationPatternScreen> {
       ]);
     }
   }
-
-  late final List<_VibrationItem> _items = [
-    _VibrationItem(
-      title: '계단 감지',
-      patternVisual: '- - - -',
-      description: '네 번의 짧은 진동으로 계단을 알림',
-      pattern: _pattern([
-        shortOn,
-        gapShort,
-        shortOn,
-        gapShort,
-        shortOn,
-        gapShort,
-        shortOn,
-      ]),
-    ),
-    _VibrationItem(
-      title: '차도',
-      patternVisual: '~~~~~',
-      description: '연속 진동으로 차도 접근 경고',
-      pattern: _pattern([
-        continuousOn,
-        gapShort,
-        continuousOn,
-        gapShort,
-        continuousOn,
-      ]),
-    ),
-    _VibrationItem(
-      title: '장애물 (전봇대/변압기)',
-      patternVisual: '--- - --- -',
-      description: '긴-짧음 반복으로 고정 장애물 경고',
-      pattern: _pattern([
-        longOn,
-        gapShort,
-        shortOn,
-        gapShort,
-        longOn,
-        gapShort,
-        shortOn,
-      ]),
-    ),
-    _VibrationItem(
-      title: '장애물 (사람)',
-      patternVisual: '-- - -- -',
-      description: '중간-짧음 반복으로 이동 장애물(사람) 경고',
-      pattern: _pattern([
-        mediumOn,
-        gapShort,
-        shortOn,
-        gapShort,
-        mediumOn,
-        gapShort,
-        shortOn,
-      ]),
-    ),
-    _VibrationItem.dynamic(
-      title: '자전거 (거리별)',
-      patternVisual: '-   -   -   - / -  -  -  -  - / - - - - - -',
-      description: '거리 감소에 따라 간격이 좁아지는 경고 패턴',
-      dynamicBuilder: _bicyclePattern,
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -345,62 +363,39 @@ class _VibrationPatternScreenState extends State<VibrationPatternScreen> {
   }
 
   Widget _buildQuickButtons() {
-    // Vertical stack of 5 large accessible buttons (more spacing and size)
+    // Items always available through getter with lazy init
     return Container(
       color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // 사용 가능한 높이를 5개의 버튼과 간격으로 최대 활용
-          final double totalH = constraints.maxHeight;
-          // 버튼 높이 목표: 크고 또렷하게 (최소 56, 최대 72)
-          final double gap = 70; // 버튼 사이 간격 크게 설정
-          final double buttonH = (totalH - 4 * gap) / 5; // 간격 * 4
-          final double clampedH = buttonH.clamp(56, 72);
-
-          Widget spaced(Widget child) => Padding(
-            padding: EdgeInsets.only(bottom: gap),
-            child: SizedBox(height: clampedH, child: child),
-          );
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(height: gap),
-              spaced(_quickButton('계단 감지', _items[0].pattern)),
-              spaced(_quickButton('차도', _items[1].pattern)),
-              spaced(_quickButton('장애물', _items[2].pattern)),
-              spaced(_quickButton('사람', _items[3].pattern)),
-              SizedBox(
-                height: clampedH,
-                child: _quickButton('자전거', _items[4].dynamicBuilder!(8)),
-              ),
-              SizedBox(height: gap),
-            ],
-          );
-        },
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _quickButton('계단 감지', _items[0].pattern),
+          const SizedBox(height: 8),
+          _quickButton('차도', _items[1].pattern),
+          const SizedBox(height: 8),
+          _quickButton('장애물', _items[2].pattern),
+          const SizedBox(height: 8),
+          _quickButton('사람', _items[3].pattern),
+          const SizedBox(height: 8),
+          _quickButton('자전거', _items[4].dynamicBuilder!(8)),
+        ],
       ),
     );
   }
 
   Widget _quickButton(String label, List<int> pattern) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 26),
-          textStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-        onPressed: () async {
-          await _speak('$label 진동입니다');
-          await _play(pattern);
-        },
-        child: Text(label),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
+      onPressed: () async {
+        await _speak('$label 진동입니다');
+        await _play(pattern);
+      },
+      child: Text(label),
     );
   }
 }
